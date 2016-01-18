@@ -122,7 +122,7 @@ defmodule ExLager.Test do
 
   defp split(macros) do
     {e, d} = Enum.reduce macros, {[], []}, fn({level, res}, {e, d}) ->
-      if nil?(res) do
+      if res == nil do
         {e, [level|d]}
       else
         {[level|e], d}
