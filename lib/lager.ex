@@ -1,4 +1,6 @@
 defmodule Lager do
+  use Bitwise
+
   defdelegate [
      trace_console(filter),
      trace_file(file, filter, level),
@@ -56,6 +58,7 @@ defmodule Lager do
     module = caller.module || :unknown
     if is_binary(format), do: format = String.to_char_list(format)
     if should_log(level) do
+      format = get_for_level(format, level)
       dispatch(level, module, name, caller.line, format, args)
     end
   end
@@ -72,6 +75,24 @@ defmodule Lager do
   end
 
   defp should_log(level), do: level_to_num(level) <= level_to_num(compile_log_level)
+
+  def get_for_level(format, level) when is_function format do
+    case should_log_with_lager(level) do
+      true -> format.()
+      false -> ''
+    end
+  end
+
+  def get_for_level(format, _), do: format
+
+  defp should_log_with_lager(level) do
+    (level &&& lager_level) > 0   
+  end
+
+  defp lager_level do
+    {level, _} = :lager_config.get {:lager_event, :loglevel}
+    level
+  end
 
   @doc """
   This function is used to get compile time log level.
