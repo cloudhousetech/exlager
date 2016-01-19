@@ -56,9 +56,9 @@ defmodule Lager do
   defp log(level, format, args, caller) do
     {name, _arity} = caller.function || {:unknown, 0}
     module = caller.module || :unknown
+    format = get_for_level(format, level)
     if is_binary(format), do: format = String.to_char_list(format)
     if should_log(level) do
-      format = get_for_level(format, level)
       dispatch(level, module, name, caller.line, format, args)
     end
   end
